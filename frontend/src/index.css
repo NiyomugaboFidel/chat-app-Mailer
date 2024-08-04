@@ -13,10 +13,29 @@
   
 }
 
+/* Custom scrollbar styles */
+::-webkit-scrollbar {
+  width: 10px;
+  border-radius: 25px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 30px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #bbb;
+}
+
 
 
 .bg-svg{
-  @apply p-1 rounded-full hover:bg-Green-200  bg-[#e2e3e2] hover:transition-all ease-in-out duration-300
+  @apply p-1  rounded-full hover:bg-Green-200  bg-[#e2e3e2] hover:transition-all ease-in-out duration-300
 }
 .hover{
   @apply p-1 flex items-center justify-center  hover:scale-[1.1]  rounded-full hover:bg-Green-200 hover:transition-all ease-in-out duration-300
