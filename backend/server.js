@@ -3,18 +3,20 @@ import dotenv   from 'dotenv'
 import bodyParser from 'body-parser';
 import cors from 'cors'
 import path from 'path'
-import authRoutes from './routes/auth.routes.js'
-import messageRoutes from './routes/message.routes.js'
-import userRoutes from './routes/user.routes.js'
-import chatRoutes from './routes/chat.routes.js'
+
+import authRoutes from './routes/auth.routes.js';
+import messageRoutes from './routes/message.routes.js';
+import userRoutes from './routes/user.routes.js';
+import chatRoutes from './routes/chat.routes.js';
 import connectToMongoDb from './db/connectToMongoDb.js';
-import cookieParser from 'cookie-parser';
 import { app, server } from './soket.io/soket.js';
+
 
 dotenv.config();
 const PORT = process.env.PORT || 8000;
 
-const __dirname = path.resolve()
+const __dirname = path.resolve();
+
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:true}));
@@ -26,7 +28,8 @@ app.use('/api/message',messageRoutes);
 app.use('/api/chat',chatRoutes);
 app.use('/api/user',userRoutes);
 
-app.use(express.static(path.join(__dirname, "/frontend/dist")));
+app.use(express.static(path.join(__dirname, "frontend/dist")));
+
 
 // app.get("*", (req, res) => {
 // 	res.sendFile(path.join(__dirname, "frontend", "dist", "index.html"));
