@@ -21,7 +21,7 @@ export const SocketContextProvider: React.FC<SocketContextProviderProps> = ({ ch
 
   useEffect(() => {
     if (authUser) {
-      const newSocket = io("http://localhost:7070", {
+      const newSocket = io("https://mailer-chat.onrender.com", {
         query: {
           userId: authUser.id,
         },
