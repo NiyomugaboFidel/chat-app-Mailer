@@ -1,10 +1,18 @@
 // import Chat from "../models/chat.model.js";
 
 import Chat from "../models/chat.model.js";
-const  getAllChat = async(req, res)=>{
+const  getChat = async(req, res)=>{
+
     try {
-       const allChats = await Chat.find();
-       res.status(200).json({allChats});
+      const senderId= req.user._id
+      const reciverId = req.params.id
+
+       const chat = await Chat.findOne({participants: [ senderId, reciverId]}).populate('messageId');
+       if (!chat) return res.status(200).json([]);
+
+       const messages = chat.messageId;
+ 
+       res.status(200).json(messages);
     } catch (error) {
        console.error("Internal server error:", error);
        res
@@ -14,7 +22,7 @@ const  getAllChat = async(req, res)=>{
     }
    
     export {
-       getAllChat
+       getChat
     }
 
 // export const createGroupChat = async(req, res)=>{

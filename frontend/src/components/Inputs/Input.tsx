@@ -1,17 +1,17 @@
-import React from "react";
+import React, { ChangeEvent } from "react";
 
-type props = {
+interface Props {
   htmlFor?: string;
-  onChange?: () => void;
+  onChange?: (e: ChangeEvent<HTMLInputElement>) => void;
   value?: string;
   placeholder: string;
   type: string;
   className?: string;
   id?: string;
   label: string;
-};
+}
 
-const Input: React.FC<props> = ({
+const Input: React.FC<Props> = ({
   label,
   id,
   htmlFor,

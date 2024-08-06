@@ -1,67 +1,82 @@
 import Chat from "../models/chat.model.js";
 import Message from "../models/message.model.js";
+import User from "../models/user.model.js";
+import { getReceiverSockectId, io } from "../soket.io/soket.js";
 
 const sendMessage = async (req, res) => {
   try {
-    const { content } = req.body;
-    const chatId = req.params.id;
-    const senderId = req.user._id;
-    // console.log(content, chatId, `userId:${sederId}`);
-    if (!chatId) {
-      res
-        .status(400)
-        .json({ message: "Chat undifined. Please try again later." });
-    }
-    let chat = await Chat.findById(chatId);
+		const { content } = req.body;
+		const { id: receiverId } = req.params;
+		const senderId = req.user._id;
 
-    if (!chat) {
-      return res
-        .status(400)
-        .json({ message: "Invalid credentials.Please try Login again" });
-    }
+		let chat = await Chat.findOne({
+			participants: { $all: [senderId, receiverId] },
+		});
 
-    const newMessage = new Message({
-      chatId,
-      content,
-      senderId,
-    });
+		if (!chat) {
+       const user =  await User.findById(receiverId)
+			chat = await Chat.create({
+				participants: [senderId, receiverId],
+        chatName:`${user.username} Ⓜ️ ${req.user.username}`        
+			});
+		}
 
-    if (newMessage) {
-      chat.messageId.push(newMessage._id);
-      await Promise.all([newMessage.save(), chat.save()]);
-    }
+		const newMessage = new Message({
+      chatId:chat._id,
+			senderId,
+			receiverId,
+			content,
+		});
 
-    res.status(201).json(newMessage);
-  } catch (error) {
-    console.error("Internal server error:", error);
-    res
-      .status(500)
-      .json({ message: "Internal server error. Please try again later." });
-  }
+		if (newMessage) {
+			chat.messageId.push(newMessage._id);
+		}
+
+		// await chat.save();
+		// await newMessage.save();
+
+		// this will run in parallel
+		await Promise.all([chat.save(), newMessage.save()]);
+
+		// SOCKET IO FUNCTIONALITY WILL GO HERE
+		const receiverSocketId =  getReceiverSockectId(receiverId);
+		if (receiverSocketId) {
+			// io.to(<socket_id>).emit() used to send events to specific client
+			io.to(receiverSocketId).emit("newMessage", newMessage);
+		}
+
+		res.status(201).json(newMessage);
+	} catch (error) {
+		console.log("Error in sendMessage controller: ", error.message);
+		res.status(500).json({ error: "Internal server error" });
+	}
 };
 
 
+
+
+
+
+
 const getMessages = async(req, res)=>{
-    try {
-    const chatId = req.params.id
-    if (!chatId) {
-        res
-          .status(400)
-          .json({ message: "Chat undifined. Please try again later." });
-      }
-      const chat = await Chat.findById(chatId).populate('messageId');
-      if (!chat) return res.status(200).json([]);
+  try {
+		const receiverId = req.params.id;
+		const senderId = req.user._id;
+    // console.log({receiverId}, {senderId})
 
-      const messages = chat.messageId;
+		const chat = await Chat.findOne({
+			participants: { $all: [senderId, receiverId]},
+		}).populate("messageId"); // NOT REFERENCE BUT ACTUAL MESSAGES
 
-      res.status(200).json(messages);
-        
-    } catch (error) {
-        console.error("Internal server error:", error);
-        res
-          .status(500)
-          .json({ message: "Internal server error. Please try again later." });
-    }
+		if (!chat) return res.status(200).json([]);
+
+		const messages = chat.messageId;
+
+		res.status(200).json(messages);
+	} catch (error) {
+		console.log("Error in getMessages controller: ", error.message);
+		res.status(500).json({ error: "Internal server error" });
+	}
 } 
 
 export {

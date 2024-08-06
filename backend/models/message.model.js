@@ -7,6 +7,11 @@ var messageSchema = new mongoose.Schema({
         ref:'User',
         required:true,
     },
+    receiverId:{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:'User',
+        required:true,
+    },
     chatId:{
       type:mongoose.Schema.Types.ObjectId,
       ref:'Chat',
